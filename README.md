@@ -2,6 +2,14 @@
 
 **GifTube 2.2.7** is a Chrome/Edge extension that adds GIF search, favorites, infinite loading, and animated GIF rendering in YouTube comments for viewers who use GifTube.
 
+## 💜 Telegram-сообщество GifTube
+
+Хочешь следить за развитием GifTube, узнавать о новых версиях, делиться идеями и сообщать об ошибках? Присоединяйся к нашему Telegram-сообществу!
+
+👉 **[ПЕРЕЙТИ В TELEGRAM — @youtubegifs](https://t.me/youtubegifs)**
+
+Новости проекта, обсуждения GIF и помощь другим пользователям — в нашей группе. Будем рады видеть тебя!
+
 ## Features
 - Search and browse GIFs through GifSnap.
 - Favorites stored locally in the browser.
