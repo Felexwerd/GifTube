@@ -65,3 +65,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }).finally(()=>clearTimeout(timeout));
   return true;
 });
+
+// Fetch the public update manifest from the extension service worker. Keeping
+// this request here avoids page-origin CORS restrictions in YouTube content scripts.
+async function fetchUpdateManifest(message) {
+  const target = new URL(String(message.manifestUrl || ""));
+  if (target.protocol !== "https:" || target.hostname !== "raw.githubusercontent.com" ||
+      target.pathname !== "/Felexwerd/GifTube/main/update.json") {
+    throw new Error("Недопустимый адрес манифеста обновлений.");
+  }
+  const response = await fetch(`${target.href}?t=${Number(message.cacheBust) || Date.now()}`, {
+    method: "GET",
+    headers: { "Accept": "application/json" },
+    cache: "no-store"
+  });
+  if (!response.ok) throw new Error(`Update manifest HTTP ${response.status}`);
+  const update = await response.json();
+  if (!update || !/^\d+\.\d+\.\d+$/.test(String(update.latest_version || ""))) {
+    throw new Error("Некорректный манифест обновлений.");
+  }
+  return update;
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type !== "GIF_TUBE_CHECK_UPDATE") return;
+  fetchUpdateManifest(message)
+    .then(update => sendResponse({ ok: true, update }))
+    .catch(error => sendResponse({ ok: false, error: error?.message || "Update check failed" }));
+  return true;
+});
