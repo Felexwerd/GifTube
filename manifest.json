@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "GifTube — GIF для YouTube",
+  "short_name": "GifTube",
+  "version": "2.2.6",
+  "description": "GIF-поиск с автоматической подгрузкой до 1 000 000 результатов (если доступны) и отображением GIF в комментариях YouTube. Felexwerd.",
+  "author": "Felexwerd",
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.youtube.com/*", "https://gifsnap.com/*"],
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [{
+    "matches": ["https://www.youtube.com/*"],
+    "js": ["content.js"],
+    "css": ["style.css"],
+    "run_at": "document_idle"
+  }],
+  "icons": {"16":"icons/icon.svg","48":"icons/icon.svg","128":"icons/icon.svg"}
+}
