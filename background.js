@@ -1,4 +1,4 @@
-// GifTube 2.2.6 — Felexwerd
+// GifTube 2.2.7 — Felexwerd
 // Public GifSnap API. No API key or user credentials are used.
 const API_BASE = "https://gifsnap.com/api/v1/gifs";
 const REQUEST_TIMEOUT_MS = 15000;
