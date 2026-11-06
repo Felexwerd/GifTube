@@ -2,6 +2,12 @@
 
 A YouTube GIF extension with GIF search, favorites, infinite loading, and animated GIF rendering in comments for GifTube users.
 
+## 💜 Join the GifTube Telegram community
+
+Follow project news, hear about new releases, share feature ideas, report bugs, and chat with other GifTube users.
+
+👉 **[JOIN THE TELEGRAM GROUP — @youtubegifs](https://t.me/youtubegifs)**
+
 ## What's new in 2.2.7
 - Version checks using update.json in this repository.
 - A compact YouTube banner appears when a newer version is available.
