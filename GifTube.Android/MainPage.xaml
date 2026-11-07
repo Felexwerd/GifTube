@@ -1,10 +1,40 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="GifTube.Android.MainPage" BackgroundColor="#090611" Shell.NavBarIsVisible="False">
-  <ScrollView><VerticalStackLayout Padding="20" Spacing="16">
-    <Grid ColumnDefinitions="58,*" ColumnSpacing="12"><Border Background="#8E35CF" StrokeThickness="0" StrokeShape="RoundRectangle 17" HeightRequest="56" WidthRequest="56"><Label Text="GIF" FontSize="17" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/></Border><VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center"><Label Text="GifTube" FontSize="27" FontAttributes="Bold" TextColor="White"/><Label Text="GIF keyboard for YouTube" FontSize="12" TextColor="#B8A9C8"/></VerticalStackLayout></Grid>
-    <Border Background="#191025" Stroke="#56336E" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="16"><VerticalStackLayout Spacing="10"><Label Text="ОТПРАВЛЯЙ GIF ПРЯМО ИЗ YOUTUBE" TextColor="#E5BFFF" FontSize="13" FontAttributes="Bold"/><Label Text="GifTube добавляет собственную клавиатуру с поиском GIF. Открой комментарии YouTube, переключись на клавиатуру GifTube, выбери GIF — она вставится прямо в поле комментария." TextColor="#F3EAF9" FontSize="13"/><Button Text="①  Включить клавиатуру GifTube" Clicked="OnEnableKeyboard" BackgroundColor="#8E35CF" TextColor="White" CornerRadius="13" HeightRequest="48"/><Button Text="②  Выбрать клавиатуру GifTube" Clicked="OnSelectKeyboard" BackgroundColor="#2B1A39" TextColor="White" BorderColor="#70458D" BorderWidth="1" CornerRadius="13" HeightRequest="48"/></VerticalStackLayout></Border>
-    <Border Background="#171020" Stroke="#39264B" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="14"><VerticalStackLayout Spacing="7"><Label Text="КАК ЭТО РАБОТАЕТ" TextColor="#D9A7FF" FontAttributes="Bold"/><Label Text="1. Активируй GifTube в настройках Android." TextColor="#E9DFF0" FontSize="12"/><Label Text="2. Открой YouTube → комментарии." TextColor="#E9DFF0" FontSize="12"/><Label Text="3. На клавиатуре нажми переключение языка и выбери GifTube." TextColor="#E9DFF0" FontSize="12"/><Label Text="4. Найди GIF и нажми на неё — код вставится в поле комментария." TextColor="#E9DFF0" FontSize="12"/></VerticalStackLayout></Border>
-    <Label Text="Важно: Android не позволяет стороннему приложению встраиваться внутрь YouTube как браузерному расширению. Клавиатура — системный способ вставки содержимого прямо в активное поле. Для отображения анимации на ПК нужен GifTube 2.2.7 или новее." TextColor="#A99AB7" FontSize="11"/>
-    <Label Text="GifTube Android • 1.1.0" TextColor="#756681" FontSize="10" HorizontalOptions="Center"/>
-  </VerticalStackLayout></ScrollView>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GifTube.Android.MainPage" BackgroundColor="#090611" Shell.NavBarIsVisible="False">
+  <ScrollView>
+    <VerticalStackLayout Padding="22" Spacing="18">
+      <Grid ColumnDefinitions="58,*">
+        <Border Background="#A83FD1" StrokeThickness="0" StrokeShape="RoundRectangle 17" HeightRequest="56" WidthRequest="56">
+          <Label Text="GIF" FontSize="17" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Border>
+        <VerticalStackLayout Grid.Column="1" Padding="12,0" Spacing="1" VerticalOptions="Center">
+          <Label Text="GifTube" FontSize="28" FontAttributes="Bold" TextColor="White"/>
+          <Label Text="GIF-библиотека для YouTube" FontSize="12" TextColor="#B8A9C8"/>
+        </VerticalStackLayout>
+      </Grid>
+      <Border Background="#191025" Stroke="#56336E" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="18">
+        <VerticalStackLayout Spacing="12">
+          <Label Text="GIF ПРЯМО В КОММЕНТАРИЯХ" TextColor="#E5BFFF" FontSize="13" FontAttributes="Bold"/>
+          <Label Text="Открой YouTube, запусти плавающую панель GifTube, выбери анимированную GIF и вставь её в комментарий." TextColor="#F3EAF9" FontSize="13"/>
+          <Button Text="✦  ЗАПУСТИТЬ GIF-ПАНЕЛЬ" Clicked="OnStartOverlay" BackgroundColor="#963AC5" TextColor="White" CornerRadius="14" HeightRequest="54" FontAttributes="Bold"/>
+          <Label Text="Панель появится поверх YouTube. Её можно закрыть кнопкой ×." TextColor="#A99AB7" FontSize="11"/>
+        </VerticalStackLayout>
+      </Border>
+      <Border Background="#171020" Stroke="#39264B" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="16">
+        <VerticalStackLayout Spacing="10">
+          <Label Text="НАСТРОЙКА ВСТАВКИ" TextColor="#D9A7FF" FontAttributes="Bold" FontSize="13"/>
+          <Label Text="Дополнительное разрешение помогает GifTube находить поле комментария YouTube и вставлять выбранную GIF. Если разрешение не включено, приложение скопирует код — его можно вставить вручную." TextColor="#E9DFF0" FontSize="12"/>
+          <Button Text="Включить службу вставки" Clicked="OnAccessibilitySettings" BackgroundColor="#2B1A39" TextColor="White" BorderColor="#70458D" BorderWidth="1" CornerRadius="12" HeightRequest="46"/>
+          <Button Text="Разрешить отображение поверх приложений" Clicked="OnOverlaySettings" BackgroundColor="#2B1A39" TextColor="White" BorderColor="#70458D" BorderWidth="1" CornerRadius="12" HeightRequest="46"/>
+        </VerticalStackLayout>
+      </Border>
+      <Border Background="#171020" Stroke="#39264B" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="16">
+        <VerticalStackLayout Spacing="7">
+          <Label Text="ВАЖНО" TextColor="#D9A7FF" FontAttributes="Bold"/>
+          <Label Text="Android не поддерживает установку браузерных расширений внутрь приложения YouTube. Поэтому GifTube использует плавающую панель. Для просмотра анимации у получателя на компьютере должно быть установлено расширение GifTube." TextColor="#BEB0C9" FontSize="11"/>
+        </VerticalStackLayout>
+      </Border>
+      <Label Text="GifTube Android • Floating Picker" TextColor="#756681" FontSize="10" HorizontalOptions="Center"/>
+    </VerticalStackLayout>
+  </ScrollView>
 </ContentPage>
