@@ -1,0 +1,26 @@
+name: Build GifTube Android APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'GifTube.Android/**'
+      - '.github/workflows/build-android.yml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+      - name: Restore
+        run: dotnet restore GifTube.Android/GifTube.Android.csproj
+      - name: Build APK
+        run: dotnet publish GifTube.Android/GifTube.Android.csproj -c Release -f net10.0-android -p:AndroidPackageFormat=apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GifTube-Android-APK
+          path: GifTube.Android/bin/Release/net10.0-android/publish/*.apk
