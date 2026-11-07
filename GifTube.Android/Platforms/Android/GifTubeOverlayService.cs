@@ -4,7 +4,8 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Views;
-using Android.Widget;\nusing Android.Runtime;
+using Android.Widget;
+using Android.Runtime;
 using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
 
