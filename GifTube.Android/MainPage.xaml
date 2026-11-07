@@ -1,31 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="GifTube.Android.MainPage" BackgroundColor="#090611" Shell.NavBarIsVisible="False">
-  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
-    <Grid Grid.Row="0" ColumnDefinitions="54,*,Auto" ColumnSpacing="12">
-      <Border Background="#B54CFF" StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="50" WidthRequest="50"><Label Text="GIF" FontAttributes="Bold" FontSize="17" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/></Border>
-      <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center"><Label Text="GifTube" FontSize="23" FontAttributes="Bold" TextColor="#FFFFFF"/><Label Text="GIF-библиотека для YouTube" FontSize="12" TextColor="#B8A9C8"/></VerticalStackLayout>
-      <Border Grid.Column="2" Background="#261438" Stroke="#7130A8" StrokeThickness="1" Padding="10,6" StrokeShape="RoundRectangle 12" VerticalOptions="Center"><Label Text="ANDROID" FontSize="10" TextColor="#E7C8FF" FontAttributes="Bold"/></Border>
-    </Grid>
-    <Border Grid.Row="1" Background="#171020" Stroke="#49305D" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="12,2">
-      <Grid ColumnDefinitions="*,Auto"><Entry x:Name="SearchEntry" Placeholder="Найти GIF… например, hello, anime" PlaceholderColor="#8F809F" TextColor="White" BackgroundColor="Transparent" ReturnType="Search" Completed="OnSearchCompleted"/><Button Grid.Column="1" Text="⌕" FontSize="22" TextColor="#D9A7FF" BackgroundColor="Transparent" Clicked="OnSearchClicked"/></Grid>
-    </Border>
-    <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="10">
-      <Button Text="✦  Популярное" Clicked="OnTrendingClicked" BackgroundColor="#8E35CF" TextColor="White" CornerRadius="13" HeightRequest="42"/>
-      <Button Grid.Column="1" Text="Поиск" Clicked="OnSearchClicked" BackgroundColor="#21172C" TextColor="#E8D9F5" BorderColor="#49305D" BorderWidth="1" CornerRadius="13" HeightRequest="42"/>
-    </Grid>
-    <Grid Grid.Row="3" RowDefinitions="Auto,*">
-      <Label x:Name="StatusLabel" Text="Выбери GIF — затем скопируй его для комментария YouTube." TextColor="#B8A9C8" FontSize="12" Margin="2,0,2,8"/>
-      <CollectionView Grid.Row="1" x:Name="GifCollection" ItemsSource="{Binding Gifs}" SelectionMode="None">
-        <CollectionView.ItemsLayout><GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10"/></CollectionView.ItemsLayout>
-        <CollectionView.ItemTemplate><DataTemplate>
-          <Border Background="#171020" Stroke="#39264B" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="7">
-            <Grid RowDefinitions="150,Auto,Auto" RowSpacing="6"><Image Source="{Binding Preview}" Aspect="AspectFill"/><Label Grid.Row="1" Text="{Binding Title}" TextColor="#F6EDFF" FontSize="11" LineBreakMode="TailTruncation"/><Button Grid.Row="2" Text="Скопировать GIF" FontSize="12" HeightRequest="36" BackgroundColor="#8E35CF" TextColor="White" CornerRadius="10" CommandParameter="{Binding .}" Clicked="OnCopyGifClicked"/></Grid>
-          </Border>
-        </DataTemplate></CollectionView.ItemTemplate>
-      </CollectionView>
-    </Grid>
-    <Border Grid.Row="4" Background="#171020" Stroke="#49305D" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="12">
-      <VerticalStackLayout Spacing="4"><Label Text="КАК ОТПРАВИТЬ GIF" TextColor="#D9A7FF" FontAttributes="Bold" FontSize="12"/><Label Text="1. Нажми «Скопировать GIF».  2. Открой YouTube на телефоне.  3. Вставь в поле комментария и опубликуй." TextColor="#D9CDE6" FontSize="11"/><Label Text="На компьютере GIF увидят пользователи с совместимым расширением GifTube." TextColor="#9D8EAD" FontSize="10"/></VerticalStackLayout>
-    </Border>
-  </Grid>
+  <ScrollView><VerticalStackLayout Padding="20" Spacing="16">
+    <Grid ColumnDefinitions="58,*" ColumnSpacing="12"><Border Background="#8E35CF" StrokeThickness="0" StrokeShape="RoundRectangle 17" HeightRequest="56" WidthRequest="56"><Label Text="GIF" FontSize="17" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/></Border><VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center"><Label Text="GifTube" FontSize="27" FontAttributes="Bold" TextColor="White"/><Label Text="GIF keyboard for YouTube" FontSize="12" TextColor="#B8A9C8"/></VerticalStackLayout></Grid>
+    <Border Background="#191025" Stroke="#56336E" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="16"><VerticalStackLayout Spacing="10"><Label Text="ОТПРАВЛЯЙ GIF ПРЯМО ИЗ YOUTUBE" TextColor="#E5BFFF" FontSize="13" FontAttributes="Bold"/><Label Text="GifTube добавляет собственную клавиатуру с поиском GIF. Открой комментарии YouTube, переключись на клавиатуру GifTube, выбери GIF — она вставится прямо в поле комментария." TextColor="#F3EAF9" FontSize="13"/><Button Text="①  Включить клавиатуру GifTube" Clicked="OnEnableKeyboard" BackgroundColor="#8E35CF" TextColor="White" CornerRadius="13" HeightRequest="48"/><Button Text="②  Выбрать клавиатуру GifTube" Clicked="OnSelectKeyboard" BackgroundColor="#2B1A39" TextColor="White" BorderColor="#70458D" BorderWidth="1" CornerRadius="13" HeightRequest="48"/></VerticalStackLayout></Border>
+    <Border Background="#171020" Stroke="#39264B" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="14"><VerticalStackLayout Spacing="7"><Label Text="КАК ЭТО РАБОТАЕТ" TextColor="#D9A7FF" FontAttributes="Bold"/><Label Text="1. Активируй GifTube в настройках Android." TextColor="#E9DFF0" FontSize="12"/><Label Text="2. Открой YouTube → комментарии." TextColor="#E9DFF0" FontSize="12"/><Label Text="3. На клавиатуре нажми переключение языка и выбери GifTube." TextColor="#E9DFF0" FontSize="12"/><Label Text="4. Найди GIF и нажми на неё — код вставится в поле комментария." TextColor="#E9DFF0" FontSize="12"/></VerticalStackLayout></Border>
+    <Label Text="Важно: Android не позволяет стороннему приложению встраиваться внутрь YouTube как браузерному расширению. Клавиатура — системный способ вставки содержимого прямо в активное поле. Для отображения анимации на ПК нужен GifTube 2.2.7 или новее." TextColor="#A99AB7" FontSize="11"/>
+    <Label Text="GifTube Android • 1.1.0" TextColor="#756681" FontSize="10" HorizontalOptions="Center"/>
+  </VerticalStackLayout></ScrollView>
 </ContentPage>
