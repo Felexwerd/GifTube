@@ -14,7 +14,7 @@ namespace GifTube.Android;
 [MetaData("android.accessibilityservice", Resource = "@xml/giftube_accessibility")]
 public class GifTubeAccessibilityService : AccessibilityService
 {
-    const int ActionSetText = 0x00200000;
+    const Android.Views.Accessibility.Action ActionSetText = (Android.Views.Accessibility.Action)0x00200000;
     const string ActionArgumentSetTextCharSequence = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
 
     public static GifTubeAccessibilityService? Instance { get; private set; }
