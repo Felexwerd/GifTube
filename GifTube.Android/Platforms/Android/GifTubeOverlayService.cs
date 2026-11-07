@@ -13,6 +13,7 @@ using Button = global::Android.Widget.Button;
 using Orientation = global::Android.Widget.Orientation;
 using AndroidImageDecoder = global::Android.Graphics.ImageDecoder;
 using Android.Runtime;
+using Android.Util;
 using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
 using View = Android.Views.View;
@@ -43,7 +44,17 @@ public class GifTubeOverlayService : Service
     public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
     {
         if (intent?.Action == "close") { StopSelf(); return StartCommandResult.NotSticky; }
-        if (panel == null) ShowPanel();
+        try
+        {
+            if (panel == null) ShowPanel();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("GifTubeOverlay", "Overlay startup failed: " + ex);
+            try { Toast.MakeText(this, "Не удалось открыть GIF-панель. Проверь разрешение «Поверх других приложений».", ToastLength.Long)?.Show(); } catch { }
+            StopSelf();
+            return StartCommandResult.NotSticky;
+        }
         return StartCommandResult.Sticky;
     }
 
@@ -108,7 +119,6 @@ public class GifTubeOverlayService : Service
             if (!favoritesOnly && hasMore && e.ScrollY + scroll.Height >= grid.Height - 260 && !loading) await Load(false);
         };
 
-        panel = root;
         var p = new WindowManagerLayoutParams(
             ViewGroup.LayoutParams.MatchParent,
             (int)(Resources!.DisplayMetrics!.HeightPixels * 0.78),
@@ -116,7 +126,9 @@ public class GifTubeOverlayService : Service
             WindowManagerFlags.LayoutInScreen | WindowManagerFlags.LayoutNoLimits,
             global::Android.Graphics.Format.Translucent)
         { Gravity = GravityFlags.Bottom, SoftInputMode = SoftInput.AdjustResize };
-        wm!.AddView(panel, p);
+        // Assign only after AddView succeeds, so a failed attach can be retried.
+        wm!.AddView(root, p);
+        panel = root;
         _ = Load(true);
     }
 
@@ -172,7 +184,13 @@ public class GifTubeOverlayService : Service
             }
             status.Text = added == 0 && clear ? "GIF не найдены" : $"Показано: {displayedUrls.Count}" + (hasMore ? " · прокрути для загрузки ещё" : " · больше результатов нет");
         }
-        catch (Exception ex) { status.Text = $"Ошибка загрузки: {ex.Message}"; }
+        catch (Exception ex)
+        {
+            Log.Warn("GifTubeOverlay", "GIF request failed: " + ex);
+            if (status != null) status.Text = ex is HttpRequestException
+                ? "Не удалось подключиться к GifSnap. Проверь интернет."
+                : "Не удалось загрузить GIF. Попробуй ещё раз.";
+        }
         finally { loading = false; }
     }
 
@@ -235,20 +253,28 @@ public class GifTubeOverlayService : Service
             var bmp = BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length);
             if (bmp != null) image.Post(() => image.SetImageBitmap(bmp));
         }
-        catch { }
+        catch (Exception ex) { Log.Warn("GifTubeOverlay", "Preview failed: " + ex); }
     }
 
     void Insert(string url)
     {
         var payload = BuildPayload(url);
         var inserted = GifTubeAccessibilityService.Instance?.InsertIntoYouTube(payload) == true;
-        if (!inserted)
+        try
         {
-            var clipboard = (ClipboardManager)GetSystemService(ClipboardService)!;
-            clipboard.PrimaryClip = ClipData.NewPlainText("GifTube", payload);
-            status!.Text = "Скопировано. Нажми поле комментария YouTube и вставь содержимое.";
+            if (!inserted)
+            {
+                var clipboard = (ClipboardManager)GetSystemService(ClipboardService)!;
+                clipboard.PrimaryClip = ClipData.NewPlainText("GifTube", payload);
+                if (status != null) status.Text = "Скопировано. Нажми поле комментария YouTube и вставь содержимое.";
+            }
+            else if (status != null) status.Text = "GIF вставлена в комментарий. Можно опубликовать!";
         }
-        else status!.Text = "GIF вставлена в комментарий. Можно опубликовать!";
+        catch (Exception ex)
+        {
+            Log.Error("GifTubeOverlay", "Insert failed: " + ex);
+            if (status != null) status.Text = "Не удалось скопировать GIF. Проверь разрешения.";
+        }
     }
 
     static string BuildPayload(string url)
