@@ -110,7 +110,7 @@ public class GifTubeKeyboardService : InputMethodService
         var bytes = new byte[] { 0x47, 0x54, 0x32 }.Concat(Encoding.UTF8.GetBytes(url)).ToArray();
         var builder = new StringBuilder();
         foreach (var value in bytes)
-            for (var bit = 7; bit >= 0; bit--) builder.Append(((value >> bit) & 1) == 0 ? '\\u200B' : '\\u200C');
-        return "GIF \\u2063\\u2063" + builder + "\\u2063\\u2063";
+            for (var bit = 7; bit >= 0; bit--) builder.Append(((value >> bit) & 1) == 0 ? '\u200B' : '\u200C');
+        return "GIF \u2063\u2063" + builder + "\u2063\u2063";
     }
 }
