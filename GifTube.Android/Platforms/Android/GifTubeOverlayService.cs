@@ -157,7 +157,8 @@ public class GifTubeOverlayService : Service
         image.SetScaleType(ImageView.ScaleType.CenterCrop);
         image.SetBackgroundColor(AndroidColor.Rgb(35, 29, 43));
         card.AddView(image);
-        var caption = new TextView(this) { Text = title.Length > 23 ? title[..23] : title, TextSize = 10, Gravity = GravityFlags.Center };\n        caption.SetMaxLines(1);
+        var caption = new TextView(this) { Text = title.Length > 23 ? title[..23] : title, TextSize = 10, Gravity = GravityFlags.Center };
+        caption.SetMaxLines(1);
         caption.SetTextColor(AndroidColor.Rgb(222, 209, 235)); card.AddView(caption);
         var actions = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         var send = new Android.Widget.Button(this) { Text = "ВСТАВИТЬ", TextSize = 9 };
