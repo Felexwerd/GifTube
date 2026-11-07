@@ -35,6 +35,8 @@ public class GifTubeOverlayService : Service
     TextView? status;
     ScrollView? scroll;
     bool loading;
+    bool hasMore = true;
+    readonly HashSet<string> displayedUrls = new();
 
     public override IBinder? OnBind(Intent? intent) => null;
 
@@ -78,7 +80,7 @@ public class GifTubeOverlayService : Service
         input.SetBackgroundColor(AndroidColor.Rgb(31, 24, 40));
         searchRow.AddView(input, new LinearLayout.LayoutParams(0, 48, 1));
         var searchButton = new Button(this) { Text = "НАЙТИ", TextSize = 10 };
-        searchButton.SetTextColor(AndroidColor.White); searchButton.SetBackgroundColor(AndroidColor.Rgb(116, 52, 158));
+        searchButton.SetTextColor(AndroidColor.White); searchButton.SetBackgroundColor(AndroidColor.Rgb(116, 52, 158)); searchButton.SetMinHeight(0); searchButton.SetMinimumHeight(0); searchButton.SetMinWidth(0); searchButton.SetPadding(2, 0, 2, 0);
         searchRow.AddView(searchButton, new LinearLayout.LayoutParams(76, 48));
         root.AddView(searchRow);
         searchButton.Click += async (_, _) => { query = input.Text ?? ""; page = 1; favoritesOnly = false; await Load(true); };
@@ -87,7 +89,7 @@ public class GifTubeOverlayService : Service
         var tabs = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         var popular = new Button(this) { Text = "Популярное" };
         var fav = new Button(this) { Text = "♡ Избранное" };
-        foreach (var b in new[] { popular, fav }) { b.SetTextColor(AndroidColor.White); b.SetBackgroundColor(AndroidColor.Rgb(40, 29, 51)); }
+        foreach (var b in new[] { popular, fav }) { b.SetTextColor(AndroidColor.White); b.SetBackgroundColor(AndroidColor.Rgb(40, 29, 51)); b.SetMinHeight(0); b.SetMinimumHeight(0); b.SetMinWidth(0); b.SetPadding(4, 0, 4, 0); }
         tabs.AddView(popular, new LinearLayout.LayoutParams(0, 44, 1));
         tabs.AddView(fav, new LinearLayout.LayoutParams(0, 44, 1));
         root.AddView(tabs);
@@ -103,7 +105,7 @@ public class GifTubeOverlayService : Service
         root.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         scroll.ScrollChange += async (_, e) =>
         {
-            if (!favoritesOnly && e.ScrollY + scroll.Height >= grid.Height - 260 && !loading) { page++; await Load(false); }
+            if (!favoritesOnly && hasMore && e.ScrollY + scroll.Height >= grid.Height - 260 && !loading) await Load(false);
         };
 
         panel = root;
@@ -124,7 +126,7 @@ public class GifTubeOverlayService : Service
         loading = true;
         try
         {
-            if (clear) grid.RemoveAllViews();
+            if (clear) { grid.RemoveAllViews(); displayedUrls.Clear(); page = 1; hasMore = true; }
             status.Text = "Загружаем GIF…";
             if (favoritesOnly)
             {
@@ -135,13 +137,21 @@ public class GifTubeOverlayService : Service
                 return;
             }
             var route = string.IsNullOrWhiteSpace(query) ? "trending" : "search";
-            var urlApi = $"{Api}/{route}?page={page}&limit=30" + (string.IsNullOrWhiteSpace(query) ? "" : "&q=" + Uri.EscapeDataString(query));
+            var requestedPage = page;
+            var urlApi = $"{Api}/{route}?page={requestedPage}&limit=24" + (string.IsNullOrWhiteSpace(query) ? "" : "&q=" + Uri.EscapeDataString(query));
             using var response = await http.GetAsync(urlApi);
             response.EnsureSuccessStatusCode();
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array)
             { status.Text = "GIF не найдены"; return; }
             var added = 0;
+            if (doc.RootElement.TryGetProperty("pagination", out var pagination))
+            {
+                hasMore = pagination.TryGetProperty("has_next", out var more) && more.ValueKind == JsonValueKind.True;
+                page = pagination.TryGetProperty("next_page", out var next) && next.TryGetInt32(out var nextPage)
+                    ? nextPage : requestedPage + 1;
+            }
+            else hasMore = data.GetArrayLength() >= 24;
             foreach (var item in data.EnumerateArray())
             {
                 var url = item.TryGetProperty("url", out var u) ? u.GetString() : null;
@@ -153,16 +163,16 @@ public class GifTubeOverlayService : Service
                     new[] { "image/gif", "image/webp", "image/apng" }.Contains(mime.GetString()?.ToLowerInvariant()) &&
                     animated.TryGetProperty("url", out var animatedUrl))
                     previewUrl = animatedUrl.GetString() ?? url;
-                if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme == "https")
+                if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme == "https" && displayedUrls.Add(uri.AbsoluteUri))
                 {
                     var title = item.TryGetProperty("title", out var t) ? t.GetString() ?? "GIF" : "GIF";
                     AddGif(uri.AbsoluteUri, title, previewUrl);
                     added++;
                 }
             }
-            status.Text = added == 0 && page == 1 ? "GIF не найдены" : "Выбери GIF — она вставится в комментарий YouTube";
+            status.Text = added == 0 && clear ? "GIF не найдены" : $"Показано: {displayedUrls.Count}" + (hasMore ? " · прокрути для загрузки ещё" : " · больше результатов нет");
         }
-        catch { status.Text = "Не удалось загрузить GIF. Проверь подключение."; }
+        catch (Exception ex) { status.Text = $"Ошибка загрузки: {ex.Message}"; }
         finally { loading = false; }
     }
 
@@ -183,10 +193,10 @@ public class GifTubeOverlayService : Service
         caption.SetTextColor(AndroidColor.Rgb(222, 209, 235)); card.AddView(caption);
         var actions = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         var send = new Button(this) { Text = "ВСТАВИТЬ", TextSize = 9 };
-        send.SetTextColor(AndroidColor.White); send.SetBackgroundColor(AndroidColor.Rgb(117, 49, 160));
+        send.SetTextColor(AndroidColor.White); send.SetBackgroundColor(AndroidColor.Rgb(117, 49, 160)); send.SetMinHeight(0); send.SetMinimumHeight(0); send.SetMinWidth(0); send.SetPadding(2, 0, 2, 0);
         send.Click += (_, _) => Insert(url);
         var heart = new Button(this) { Text = favorites.Contains(url) ? "♥" : "♡", TextSize = 14 };
-        heart.SetTextColor(AndroidColor.White); heart.SetBackgroundColor(AndroidColor.Rgb(43, 33, 52));
+        heart.SetTextColor(AndroidColor.White); heart.SetBackgroundColor(AndroidColor.Rgb(43, 33, 52)); heart.SetMinHeight(0); heart.SetMinimumHeight(0); heart.SetMinWidth(0); heart.SetPadding(0, 0, 0, 0);
         heart.Click += (_, _) => { if (!favorites.Add(url)) favorites.Remove(url); heart.Text = favorites.Contains(url) ? "♥" : "♡"; };
         actions.AddView(send, new LinearLayout.LayoutParams(0, 38, 1)); actions.AddView(heart, new LinearLayout.LayoutParams(42, 38));
         card.AddView(actions);
