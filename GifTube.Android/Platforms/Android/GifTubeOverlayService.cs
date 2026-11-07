@@ -11,6 +11,8 @@ using ImageView = global::Android.Widget.ImageView;
 using ScrollView = global::Android.Widget.ScrollView;
 using Button = global::Android.Widget.Button;
 using Orientation = global::Android.Widget.Orientation;
+using Toast = global::Android.Widget.Toast;
+using ToastLength = global::Android.Widget.ToastLength;
 using AndroidImageDecoder = global::Android.Graphics.ImageDecoder;
 using Android.Runtime;
 using Android.Util;
