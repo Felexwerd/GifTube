@@ -4,13 +4,16 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Views;
-using Android.Widget;
+using LinearLayout = global::Android.Widget.LinearLayout;
+using TextView = global::Android.Widget.TextView;
+using EditText = global::Android.Widget.EditText;
+using ImageView = global::Android.Widget.ImageView;
+using ScrollView = global::Android.Widget.ScrollView;
+using Button = global::Android.Widget.Button;
 using Android.Runtime;
 using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
 using View = Android.Views.View;
-using ScrollView = Android.Widget.ScrollView;
-using Button = global::Android.Widget.Button;
 using AndroidOS = global::Android.OS;
 
 namespace GifTube.Android;
@@ -81,7 +84,7 @@ public class GifTubeOverlayService : Service
 
         var tabs = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         var popular = new Button(this) { Text = "Популярное" };
-        var fav = new Android.Widget.Button(this) { Text = "♡ Избранное" };
+        var fav = new Button(this) { Text = "♡ Избранное" };
         foreach (var b in new[] { popular, fav }) { b.SetTextColor(AndroidColor.White); b.SetBackgroundColor(AndroidColor.Rgb(40, 29, 51)); }
         tabs.AddView(popular, new LinearLayout.LayoutParams(0, 44, 1));
         tabs.AddView(fav, new LinearLayout.LayoutParams(0, 44, 1));
@@ -107,7 +110,7 @@ public class GifTubeOverlayService : Service
             (int)(Resources!.DisplayMetrics!.HeightPixels * 0.78),
             Build.VERSION.SdkInt >= BuildVersionCodes.O ? WindowManagerTypes.ApplicationOverlay : WindowManagerTypes.Phone,
             WindowManagerFlags.LayoutInScreen | WindowManagerFlags.LayoutNoLimits,
-            (int)global::Android.Graphics.Format.Translucent)
+            global::Android.Graphics.Format.Translucent)
         { Gravity = GravityFlags.Bottom, SoftInputMode = SoftInput.AdjustResize };
         wm!.AddView(panel, p);
         _ = Load(true);
