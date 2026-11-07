@@ -98,7 +98,7 @@ public class GifTubeOverlayService : Service
         root.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         scroll.ScrollChange += async (_, e) =>
         {
-            if (!favoritesOnly && scrollY + scroll.Height >= grid.Height - 260 && !loading) { page++; await Load(false); }
+            if (!favoritesOnly && e.ScrollY + scroll.Height >= grid.Height - 260 && !loading) { page++; await Load(false); }
         };
 
         panel = root;
