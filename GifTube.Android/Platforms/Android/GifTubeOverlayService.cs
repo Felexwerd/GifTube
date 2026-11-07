@@ -11,6 +11,7 @@ using ImageView = global::Android.Widget.ImageView;
 using ScrollView = global::Android.Widget.ScrollView;
 using Button = global::Android.Widget.Button;
 using Orientation = global::Android.Widget.Orientation;
+using AndroidImageDecoder = global::Android.Graphics.ImageDecoder;
 using Android.Runtime;
 using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
@@ -144,10 +145,19 @@ public class GifTubeOverlayService : Service
             foreach (var item in data.EnumerateArray())
             {
                 var url = item.TryGetProperty("url", out var u) ? u.GetString() : null;
+                var previewUrl = url;
+                if (item.TryGetProperty("animated_preview", out var animated) &&
+                    animated.ValueKind == JsonValueKind.Object &&
+                    animated.TryGetProperty("animated", out var isAnimated) && isAnimated.ValueKind == JsonValueKind.True &&
+                    animated.TryGetProperty("mime_type", out var mime) &&
+                    new[] { "image/gif", "image/webp", "image/apng" }.Contains(mime.GetString()?.ToLowerInvariant()) &&
+                    animated.TryGetProperty("url", out var animatedUrl))
+                    previewUrl = animatedUrl.GetString() ?? url;
                 if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme == "https")
                 {
                     var title = item.TryGetProperty("title", out var t) ? t.GetString() ?? "GIF" : "GIF";
-                    AddGif(uri.AbsoluteUri, title); added++;
+                    AddGif(uri.AbsoluteUri, title, previewUrl);
+                    added++;
                 }
             }
             status.Text = added == 0 && page == 1 ? "GIF не найдены" : "Выбери GIF — она вставится в комментарий YouTube";
@@ -156,12 +166,12 @@ public class GifTubeOverlayService : Service
         finally { loading = false; }
     }
 
-    void AddGif(string url, string title)
+    void AddGif(string url, string title, string? previewUrl = null)
     {
         if (grid == null) return;
         var row = grid.ChildCount > 0 && grid.GetChildAt(grid.ChildCount - 1) is LinearLayout last && last.ChildCount < 3
             ? last : new LinearLayout(this) { Orientation = Orientation.Horizontal };
-        if (row.Parent == null) grid.AddView(row);
+        if (row.Parent == null) grid.AddView(row, new LinearLayout.LayoutParams(-1, -2));
         var card = new LinearLayout(this) { Orientation = Orientation.Vertical };
         card.SetPadding(3, 3, 3, 5);
         var image = new ImageView(this) { LayoutParameters = new LinearLayout.LayoutParams(-1, 112) };
@@ -181,7 +191,8 @@ public class GifTubeOverlayService : Service
         actions.AddView(send, new LinearLayout.LayoutParams(0, 38, 1)); actions.AddView(heart, new LinearLayout.LayoutParams(42, 38));
         card.AddView(actions);
         row.AddView(card, new LinearLayout.LayoutParams(0, -2, 1));
-        _ = LoadPreview(image, url);
+        row.LayoutParameters = new LinearLayout.LayoutParams(-1, -2);
+        _ = LoadPreview(image, previewUrl ?? url);
     }
 
     async Task LoadPreview(ImageView image, string url)
@@ -189,13 +200,30 @@ public class GifTubeOverlayService : Service
         try
         {
             var bytes = await http.GetByteArrayAsync(url);
-            var movie = Movie.DecodeStream(new MemoryStream(bytes));
-            if (movie != null) image.Post(() => image.SetImageDrawable(new GifMovieDrawable(movie)));
-            else
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
             {
-                var bmp = BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length);
-                if (bmp != null) image.Post(() => image.SetImageBitmap(bmp));
+                try
+                {
+                    var source = AndroidImageDecoder.CreateSource(Java.Nio.ByteBuffer.Wrap(bytes));
+                    var drawable = AndroidImageDecoder.DecodeDrawable(source);
+                    image.Post(() =>
+                    {
+                        image.SetImageDrawable(drawable);
+                        if (drawable is global::Android.Graphics.Drawables.AnimatedImageDrawable animated)
+                            animated.Start();
+                    });
+                    return;
+                }
+                catch { /* Fall back to the legacy GIF decoder for unsupported formats. */ }
             }
+            var movie = Movie.DecodeStream(new MemoryStream(bytes));
+            if (movie != null)
+            {
+                image.Post(() => image.SetImageDrawable(new GifMovieDrawable(movie)));
+                return;
+            }
+            var bmp = BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length);
+            if (bmp != null) image.Post(() => image.SetImageBitmap(bmp));
         }
         catch { }
     }
