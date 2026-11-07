@@ -1,4 +1,4 @@
-name: Build GifTube Android APK
+name: Build signed GifTube Android APK
 on:
   workflow_dispatch:
   push:
@@ -15,12 +15,21 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android
+      - name: Create signing key
+        run: keytool -genkeypair -v -keystore giftube-release.keystore -storepass GiftubeBuild2026! -keypass GiftubeBuild2026! -alias giftube -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=GifTube, OU=Mobile, O=Felexwerd, L=Riga, S=Riga, C=LV"
       - name: Restore
         run: dotnet restore GifTube.Android/GifTube.Android.csproj
-      - name: Build APK
-        run: dotnet publish GifTube.Android/GifTube.Android.csproj -c Release -f net10.0-android -p:AndroidPackageFormat=apk
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Publish signed APK
+        run: dotnet publish GifTube.Android/GifTube.Android.csproj -c Release -f net10.0-android -p:AndroidPackageFormat=apk -p:AndroidKeyStore=true -p:AndroidSigningKeyStore=$PWD/giftube-release.keystore -p:AndroidSigningKeyAlias=giftube -p:AndroidSigningKeyPass=GiftubeBuild2026! -p:AndroidSigningStorePass=GiftubeBuild2026!
+      - name: Verify APK signature
+        run: |
+          APK=$(find GifTube.Android/bin/Release/net10.0-android -name '*.apk' -type f | head -n 1)
+          test -n "$APK"
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)/apksigner verify --verbose "$APK"
+          mkdir -p output
+          cp "$APK" output/GifTube-Android-signed.apk
+      - uses: actions/upload-artifact@v4
         with:
-          name: GifTube-Android-APK
-          path: GifTube.Android/bin/Release/net10.0-android/publish/*.apk
+          name: GifTube-Android-signed-APK
+          path: output/GifTube-Android-signed.apk
+          if-no-files-found: error
