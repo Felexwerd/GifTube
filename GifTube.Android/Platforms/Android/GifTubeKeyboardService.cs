@@ -80,7 +80,8 @@ public class GifTubeKeyboardService : InputMethodService
                 var u = item.TryGetProperty("url", out var v) ? v.GetString() : "";
                 if (!Uri.TryCreate(u, UriKind.Absolute, out var uri) || uri.Scheme != "https") continue;
                 var label = item.TryGetProperty("title", out var t) ? t.GetString() : "GIF";
-                var button = new AndroidButton(this) { Text = string.IsNullOrWhiteSpace(label) ? "GIF" : label, TextSize = 11, MaxLines = 2 };
+                var button = new AndroidButton(this) { Text = string.IsNullOrWhiteSpace(label) ? "GIF" : label, TextSize = 11 };
+                button.SetMaxLines(2);
                 button.SetTextColor(AndroidColor.White);
                 button.SetBackgroundColor(AndroidColor.Rgb(112, 42, 155));
                 var captured = uri.AbsoluteUri;
