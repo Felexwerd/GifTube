@@ -15,7 +15,7 @@ public class GifTubeKeyboardService : InputMethodService
  const string Api="https://gifsnap.com/api/v1/gifs";
  readonly HttpClient http=new(){Timeout=TimeSpan.FromSeconds(12)};
  LinearLayout? root, grid; EditText? search; TextView? status;
- public override Android.Views.View OnCreateInputView()
+ public override global::Android.Views.View OnCreateInputView()
  {
   root=new LinearLayout(this){Orientation=Orientation.Vertical}; root.SetPadding(12,8,12,8); root.SetBackgroundColor(Android.Graphics.Color.Rgb(18,11,27));
   var top=new LinearLayout(this){Orientation=Orientation.Horizontal};
