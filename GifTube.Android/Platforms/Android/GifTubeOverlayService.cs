@@ -10,7 +10,8 @@ using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
 using View = Android.Views.View;
 using ScrollView = Android.Widget.ScrollView;
-using Button = Android.Widget.Button;
+using Button = global::Android.Widget.Button;
+using AndroidOS = global::Android.OS;
 
 namespace GifTube.Android;
 
@@ -71,7 +72,7 @@ public class GifTubeOverlayService : Service
         input.SetTextColor(AndroidColor.White); input.SetHintTextColor(AndroidColor.Rgb(143, 128, 158));
         input.SetBackgroundColor(AndroidColor.Rgb(31, 24, 40));
         searchRow.AddView(input, new LinearLayout.LayoutParams(0, 48, 1));
-        var searchButton = new Android.Widget.Button(this) { Text = "НАЙТИ", TextSize = 10 };
+        var searchButton = new Button(this) { Text = "НАЙТИ", TextSize = 10 };
         searchButton.SetTextColor(AndroidColor.White); searchButton.SetBackgroundColor(AndroidColor.Rgb(116, 52, 158));
         searchRow.AddView(searchButton, new LinearLayout.LayoutParams(76, 48));
         root.AddView(searchRow);
@@ -95,7 +96,7 @@ public class GifTubeOverlayService : Service
         grid = new LinearLayout(this) { Orientation = Orientation.Vertical };
         scroll.AddView(grid);
         root.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        scroll.ScrollChange += async (_, _, scrollY, _, _) =>
+        scroll.ScrollChange += async (_, e) =>
         {
             if (!favoritesOnly && scrollY + scroll.Height >= grid.Height - 260 && !loading) { page++; await Load(false); }
         };
@@ -106,7 +107,7 @@ public class GifTubeOverlayService : Service
             (int)(Resources!.DisplayMetrics!.HeightPixels * 0.78),
             Build.VERSION.SdkInt >= BuildVersionCodes.O ? WindowManagerTypes.ApplicationOverlay : WindowManagerTypes.Phone,
             WindowManagerFlags.LayoutInScreen | WindowManagerFlags.LayoutNoLimits,
-            global::Android.Graphics.PixelFormat.Translucent)
+            (int)global::Android.Graphics.Format.Translucent)
         { Gravity = GravityFlags.Bottom, SoftInputMode = SoftInput.AdjustResize };
         wm!.AddView(panel, p);
         _ = Load(true);
@@ -229,7 +230,7 @@ public sealed class GifMovieDrawable : Drawable, Java.Lang.IRunnable
     readonly Movie movie;
     readonly Handler handler = new(Looper.MainLooper!);
     long started;
-    public GifMovieDrawable(Movie movie) { this.movie = movie; started = global::Android.OS.SystemClock.UptimeMillis(); }
+    public GifMovieDrawable(Movie movie) { this.movie = movie; started = global::AndroidOS.SystemClock.UptimeMillis(); }
     public override int Opacity => (int)Format.Translucent;
     public override void Draw(Canvas canvas)
     {
@@ -240,7 +241,7 @@ public sealed class GifMovieDrawable : Drawable, Java.Lang.IRunnable
         canvas.Translate(b.Left + (b.Width() - movie.Width() * scale) / 2, b.Top + (b.Height() - movie.Height() * scale) / 2);
         canvas.Scale(scale, scale);
         var duration = Math.Max(1, movie.Duration());
-        movie.SetTime((int)((Android.OS.SystemClock.UptimeMillis() - started) % duration));
+        movie.SetTime((int)((AndroidOS.SystemClock.UptimeMillis() - started) % duration));
         movie.Draw(canvas, 0, 0);
         canvas.Restore();
         ScheduleSelf(this, Android.OS.SystemClock.UptimeMillis() + 40);
