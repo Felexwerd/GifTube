@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Views.Accessibility;
+using AccessibilityAction = Android.Views.Accessibility.Action;
 
 namespace GifTube.Android;
 
@@ -14,7 +15,7 @@ namespace GifTube.Android;
 [MetaData("android.accessibilityservice", Resource = "@xml/giftube_accessibility")]
 public class GifTubeAccessibilityService : AccessibilityService
 {
-    const global::Android.Views.Accessibility.Action ActionSetText = (global::Android.Views.Accessibility.Action)0x00200000;
+    const AccessibilityAction ActionSetText = (AccessibilityAction)0x00200000;
     const string ActionArgumentSetTextCharSequence = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
 
     public static GifTubeAccessibilityService? Instance { get; private set; }
