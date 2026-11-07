@@ -8,6 +8,8 @@ using Android.Widget;
 using Android.Runtime;
 using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
+using View = Android.Views.View;
+using ScrollView = Android.Widget.ScrollView;
 
 namespace GifTube.Android;
 
