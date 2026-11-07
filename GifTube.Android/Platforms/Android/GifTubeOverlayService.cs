@@ -4,7 +4,7 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Views;
-using Android.Widget;
+using Android.Widget;\nusing Android.Runtime;
 using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
 
@@ -99,7 +99,7 @@ public class GifTubeOverlayService : Service
             (int)(Resources!.DisplayMetrics!.HeightPixels * 0.78),
             Build.VERSION.SdkInt >= BuildVersionCodes.O ? WindowManagerTypes.ApplicationOverlay : WindowManagerTypes.Phone,
             WindowManagerFlags.LayoutInScreen | WindowManagerFlags.LayoutNoLimits,
-            Format.Translucent)
+            Android.Graphics.PixelFormat.Translucent)
         { Gravity = GravityFlags.Bottom, SoftInputMode = SoftInput.AdjustResize };
         wm!.AddView(panel, p);
         _ = Load(true);
@@ -216,7 +216,7 @@ public class GifTubeOverlayService : Service
     }
 }
 
-public sealed class GifMovieDrawable : Drawable, IRunnable
+public sealed class GifMovieDrawable : Drawable, Java.Lang.IRunnable
 {
     readonly Movie movie;
     readonly Handler handler = new(Looper.MainLooper!);
