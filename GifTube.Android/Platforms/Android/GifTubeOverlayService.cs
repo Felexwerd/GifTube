@@ -136,6 +136,10 @@ public class GifTubeOverlayService : Service
 
     async Task Load(bool clear)
     {
+        // Android Service callbacks do not reliably carry the MAUI UI synchronization context.
+        // Keep every view access on the main thread, including after HTTP awaits.
+        await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(async () =>
+        {
         if (grid == null || status == null || loading) return;
         loading = true;
         try
@@ -194,6 +198,8 @@ public class GifTubeOverlayService : Service
                 : "Не удалось загрузить GIF. Попробуй ещё раз.";
         }
         finally { loading = false; }
+    
+        });
     }
 
     void AddGif(string url, string title, string? previewUrl = null)
