@@ -57,6 +57,5 @@ public class GifTubeAccessibilityService : AccessibilityService
 
     public override void OnAccessibilityEvent(AccessibilityEvent? e) { }
     public override void OnInterrupt() { }
-    protected override void OnServiceConnected() { base.OnServiceConnected(); Instance = this; }
     public override void OnDestroy() { if (Instance == this) Instance = null; base.OnDestroy(); }
 }
