@@ -80,7 +80,7 @@ public class GifTubeOverlayService : Service
         input.EditorAction += async (_, _) => { query = input.Text ?? ""; page = 1; await Load(true); };
 
         var tabs = new LinearLayout(this) { Orientation = Orientation.Horizontal };
-        var popular = new Android.Widget.Button(this) { Text = "Популярное" };
+        var popular = new Button(this) { Text = "Популярное" };
         var fav = new Android.Widget.Button(this) { Text = "♡ Избранное" };
         foreach (var b in new[] { popular, fav }) { b.SetTextColor(AndroidColor.White); b.SetBackgroundColor(AndroidColor.Rgb(40, 29, 51)); }
         tabs.AddView(popular, new LinearLayout.LayoutParams(0, 44, 1));
@@ -230,7 +230,7 @@ public sealed class GifMovieDrawable : Drawable, Java.Lang.IRunnable
     readonly Movie movie;
     readonly Handler handler = new(Looper.MainLooper!);
     long started;
-    public GifMovieDrawable(Movie movie) { this.movie = movie; started = global::AndroidOS.SystemClock.UptimeMillis(); }
+    public GifMovieDrawable(Movie movie) { this.movie = movie; started = AndroidOS.SystemClock.UptimeMillis(); }
     public override int Opacity => (int)Format.Translucent;
     public override void Draw(Canvas canvas)
     {
@@ -244,7 +244,7 @@ public sealed class GifMovieDrawable : Drawable, Java.Lang.IRunnable
         movie.SetTime((int)((AndroidOS.SystemClock.UptimeMillis() - started) % duration));
         movie.Draw(canvas, 0, 0);
         canvas.Restore();
-        ScheduleSelf(this, Android.OS.SystemClock.UptimeMillis() + 40);
+        ScheduleSelf(this, AndroidOS.SystemClock.UptimeMillis() + 40);
     }
     public void Run() => InvalidateSelf();
     public override void SetAlpha(int alpha) { }
