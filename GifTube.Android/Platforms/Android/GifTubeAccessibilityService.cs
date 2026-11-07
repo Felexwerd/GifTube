@@ -14,6 +14,9 @@ namespace GifTube.Android;
 [MetaData("android.accessibilityservice", Resource = "@xml/giftube_accessibility")]
 public class GifTubeAccessibilityService : AccessibilityService
 {
+    const int ActionSetText = 0x00200000;
+    const string ActionArgumentSetTextCharSequence = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
+
     public static GifTubeAccessibilityService? Instance { get; private set; }
 
     protected override void OnServiceConnected()
@@ -33,8 +36,8 @@ public class GifTubeAccessibilityService : AccessibilityService
                 var target = FindEditable(root);
                 if (target == null) continue;
                 var args = new Bundle();
-                args.PutCharSequence(AccessibilityNodeInfo.ActionArgumentSetTextCharSequence, payload);
-                if (target.PerformAction(AccessibilityNodeInfo.ActionSetText, args)) return true;
+                args.PutCharSequence(ActionArgumentSetTextCharSequence, payload);
+                if (target.PerformAction(ActionSetText, args)) return true;
             }
         }
         catch { }
@@ -43,7 +46,7 @@ public class GifTubeAccessibilityService : AccessibilityService
 
     static AccessibilityNodeInfo? FindEditable(AccessibilityNodeInfo node)
     {
-        if (node.PackageName?.ToString() == "com.google.android.youtube" && node.IsEditable && node.IsEnabled)
+        if (node.PackageName?.ToString() == "com.google.android.youtube" && node.Editable && node.Enabled)
             return node;
         for (var i = 0; i < node.ChildCount; i++)
         {
