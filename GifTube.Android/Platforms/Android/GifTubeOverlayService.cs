@@ -10,6 +10,7 @@ using System.Text.Json;
 using AndroidColor = Android.Graphics.Color;
 using View = Android.Views.View;
 using ScrollView = Android.Widget.ScrollView;
+using Button = Android.Widget.Button;
 
 namespace GifTube.Android;
 
@@ -45,7 +46,8 @@ public class GifTubeOverlayService : Service
         root.SetPadding(14, 12, 14, 8);
         root.SetBackgroundColor(AndroidColor.Rgb(15, 11, 22));
 
-        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal, Gravity = GravityFlags.CenterVertical };
+        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        header.SetGravity(GravityFlags.CenterVertical);
         var logo = new TextView(this) { Text = " GIF ", TextSize = 16, Gravity = GravityFlags.Center };
         logo.SetTextColor(AndroidColor.White); logo.SetBackgroundColor(AndroidColor.Rgb(174, 62, 211));
         header.AddView(logo, new LinearLayout.LayoutParams(48, 42));
@@ -56,14 +58,16 @@ public class GifTubeOverlayService : Service
         subtitle.SetTextColor(AndroidColor.Rgb(183, 165, 203));
         heading.AddView(name); heading.AddView(subtitle);
         header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 1));
-        var close = new Android.Widget.Button(this) { Text = "×", TextSize = 22 };
+        var close = new Button(this) { Text = "×", TextSize = 22 };
         close.SetTextColor(AndroidColor.White); close.SetBackgroundColor(AndroidColor.Transparent);
         close.Click += (_, _) => StopSelf();
         header.AddView(close, new LinearLayout.LayoutParams(48, 44));
         root.AddView(header);
 
-        var searchRow = new LinearLayout(this) { Orientation = Orientation.Horizontal, Gravity = GravityFlags.CenterVertical };
-        var input = new EditText(this) { Hint = "⌕  Найти GIF… например hello, wow, anime", SingleLine = true, TextSize = 14 };
+        var searchRow = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        searchRow.SetGravity(GravityFlags.CenterVertical);
+        var input = new EditText(this) { Hint = "⌕  Найти GIF… например hello, wow, anime", TextSize = 14 };
+        input.SetSingleLine(true);
         input.SetTextColor(AndroidColor.White); input.SetHintTextColor(AndroidColor.Rgb(143, 128, 158));
         input.SetBackgroundColor(AndroidColor.Rgb(31, 24, 40));
         searchRow.AddView(input, new LinearLayout.LayoutParams(0, 48, 1));
@@ -102,7 +106,7 @@ public class GifTubeOverlayService : Service
             (int)(Resources!.DisplayMetrics!.HeightPixels * 0.78),
             Build.VERSION.SdkInt >= BuildVersionCodes.O ? WindowManagerTypes.ApplicationOverlay : WindowManagerTypes.Phone,
             WindowManagerFlags.LayoutInScreen | WindowManagerFlags.LayoutNoLimits,
-            Android.Graphics.PixelFormat.Translucent)
+            global::Android.Graphics.PixelFormat.Translucent)
         { Gravity = GravityFlags.Bottom, SoftInputMode = SoftInput.AdjustResize };
         wm!.AddView(panel, p);
         _ = Load(true);
@@ -225,7 +229,7 @@ public sealed class GifMovieDrawable : Drawable, Java.Lang.IRunnable
     readonly Movie movie;
     readonly Handler handler = new(Looper.MainLooper!);
     long started;
-    public GifMovieDrawable(Movie movie) { this.movie = movie; started = Android.OS.SystemClock.UptimeMillis(); }
+    public GifMovieDrawable(Movie movie) { this.movie = movie; started = global::Android.OS.SystemClock.UptimeMillis(); }
     public override int Opacity => (int)Format.Translucent;
     public override void Draw(Canvas canvas)
     {
